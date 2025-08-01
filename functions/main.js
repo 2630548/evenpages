@@ -1,23 +1,16 @@
 export async function onRequest(context) {
   const { request } = context;
-  const url = new URL(request.url);
+  const incomingUrl = new URL(request.url);
 
-  console.log("Incoming URL:", url.href);
+  // 构造目标 URL（只修改 hostname，保留路径、查询参数等）
+  const targetUrl = new URL(request.url);
+  targetUrl.hostname = 'even2.cist.pp.ua';
 
-  if (url.pathname.startsWith('/')) {
-    // 替换为目标主机名
-    url.hostname = 'nodejsweb.g1-us-east.galaxycloud.app';
+  console.log("Proxying to:", targetUrl.href);
 
-    // 构造新的请求并保留原请求的 init 信息
-    const newRequest = new Request(url.href, request);
+  // 创建新的请求
+  const newRequest = new Request(targetUrl.href, request);
 
-    console.log("Proxying to:", url.href);
-
-    return fetch(newRequest);
-  }
-
-  // 否则交给默认的静态资源处理
-  // return context.env.ASSETS.fetch(request);
-  return new Response("Not found", { status: 404 });
-
+  // 发起代理请求
+  return fetch(newRequest);
 }
