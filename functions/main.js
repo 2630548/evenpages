@@ -1,16 +1,17 @@
 export async function onRequest(context) {
   const { request } = context;
-  const incomingUrl = new URL(request.url);
+  const url = new URL(request.url);
 
-  // 构造目标 URL（只修改 hostname，保留路径、查询参数等）
-  const targetUrl = new URL(request.url);
-  targetUrl.hostname = 'even2.cist.pp.ua';
+  // 修改目标主机
+  url.hostname = 'even2.cist.pp.ua';
 
-  console.log("Proxying to:", targetUrl.href);
+  // 克隆原始请求并替换 URL
+  const newRequest = new Request(url.toString(), request);
 
-  // 创建新的请求
-  const newRequest = new Request(targetUrl.href, request);
+  // 打印日志（仅在本地 dev 模式有效）
+  console.log('Original URL:', request.url);
+  console.log('Proxied URL:', url.toString());
 
-  // 发起代理请求
+  // 执行代理请求
   return fetch(newRequest);
 }
